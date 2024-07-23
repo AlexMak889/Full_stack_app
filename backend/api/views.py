@@ -5,7 +5,7 @@ from .serializers import UserSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Note
 
-class NoteListCreate(generics.ListAPIView):
+class NoteListCreate(generics.ListCreateAPIView):
     serializer_class = NoteSerializer
     permission_classes = [IsAuthenticated]
 
@@ -22,7 +22,7 @@ class NoteListCreate(generics.ListAPIView):
 class NoteDelete(generics.DestroyAPIView):
     serializer_class = NoteSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
         user = self.request.user
         return Note.objects.filter(author=user)
