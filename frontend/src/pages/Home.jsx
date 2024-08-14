@@ -1,12 +1,22 @@
 import { useState, useEffect } from "react";
 import api from "../api";
 import Note from "../components/Note";
-import "../styles/Home.css";
+import SideBar from "../components/SideBar";
+import CreateNote from "../components/createNote";
+import SettingsMenu from "../components/settingsMenu";
+import Draggable from "react-draggable";
 
 function Home() {
+  const [isOpen, setIsOpen] = useState(false);
   const [notes, setNotes] = useState([]);
-  const [content, setContent] = useState("");
-  const [title, setTitle] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleNote = () => {
+    setIsOpen(!isOpen);
+  };
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   useEffect(() => {
     getNotes();
@@ -34,50 +44,43 @@ function Home() {
       .catch((error) => alert(error));
   };
 
-  const createNote = (e) => {
-    e.preventDefault();
-    api
-      .post("/api/notes/", { content, title })
-      .then((res) => {
-        if (res.status === 201) alert("note created!");
-        else alert("Faild to make note.");
-        getNotes();
-      })
-      .catch((err) => alert(err));
-  };
-
   return (
-    <div>
-      <div>
-        <h2>Notes</h2>
-        {notes.map((note) => (
-          <Note note={note} onDelete={deleteNote} key={note.id} />
-        ))}
+
+    <div className="bg-gray-900 h-full w-full flex">
+      
+      <SideBar />
+
+      <div className="static top-0 right-0">
+        <button
+          className="  h-16 w-16 bg-slate-600 rounded-full mr-2 mb-2 justify-center items-center flex hover:bg-slate-700"
+          onClick={toggleMenu}
+        >
+          <span className="material-symbols-outlined">settings</span>
+        </button>
+        {isMenuOpen && (
+          <div className="absolute top-0 right-0 mt-16 mr-2 bg-white rounded-lg shadow-lg p-4">
+            <SettingsMenu />
+          </div>
+        )}
       </div>
-      <h2>create a note</h2>
-      <form onSubmit={createNote}>
-        <label htmlFor="title">Title:</label>
-        <br />
-        <input
-          type="text"
-          id="title"
-          name="title"
-          required
-          onChange={(e) => setTitle(e.target.value)}
-          value={title}
-        />
-        <label htmlFor="content">content:</label>
-        <br />
-        <textarea
-          name="content"
-          id="content"
-          required
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        ></textarea>
-        <br />
-        <input type="submit" value="Submit"></input>
-      </form>
+
+      <div className="flex-grow relative">
+        <div className="absolute bottom-0 right-0 mb-20">
+          {notes.map((note) => (
+            <Note note={note} onDelete={deleteNote} key={note.id} />
+          ))}
+        </div>
+
+        <button
+          className="absolute bottom-0 right-0 h-16 w-16 bg-slate-600 rounded-full mr-2 mb-2 justify-center items-center flex hover:bg-slate-700"
+          onClick={toggleNote}
+        >
+          <span className="material-symbols-outlined">edit</span>
+        </button>
+        <div className="absolute">
+          {isOpen && <CreateNote getNotes={getNotes} />}
+        </div>
+      </div>
     </div>
   );
 }
